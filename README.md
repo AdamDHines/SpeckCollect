@@ -29,10 +29,9 @@ cd ~/SpeckCollect
 ```
 
 To run the SpeckCollect module, simply use the `main.py` script which consists of a few arguments. 
-
-	`--time_int` - sets the time in which to collect events over (default 0.033s or 30fps)
-	`--directory` - set the directory to save the data to (default ./speckcollect/data)
-	`--exp` - set a name for the experiment (default `exp`)
+  - --time_int - sets the time in which to collect events over (default 0.033s or 30fps)
+  - --directory - set the directory to save the data to (default ./speckcollect/data)
+  - --exp - set a name for the experiment (default `exp`)
 	
 ```console
 # Run the SpeckCollect over a 1s timebin and set the experiment name to TEST001 
