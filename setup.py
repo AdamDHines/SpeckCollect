@@ -19,7 +19,7 @@ requirements = [
 # define the setup
 setup(
     name="SpeckCollect",
-    version="0.1.0",
+    version="0.1.1",
     description='SpeckCollect gathers events from a SynSense Speck2fDevKit and generates temporal representations of event streams',
     long_description=long_description,
     long_description_content_type='text/markdown',
