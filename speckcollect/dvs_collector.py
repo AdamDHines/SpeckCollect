@@ -101,8 +101,6 @@ class Collector:
         graph = samna.graph.EventFilterGraph()
         config_source = self.build_samna_event_route(graph, dk)
 
-        graph.start()
-
         sink = samna.graph.sink_from(dk.get_model().get_source_node())
         # Configuring the visualizer
         visualizer_config = samna.ui.VisualizerConfiguration(
