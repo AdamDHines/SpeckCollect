@@ -28,7 +28,7 @@ setup(
     url='https://github.com/AdamDHines/SpeckCollect',
     license='MIT',
     install_requires=requirements,
-    python_requires='>=3.6, <3.12',
+    python_requires='>=3.6, !=3.12.*',
     classifiers=[
         #   3 - Alpha
         #   4 - Beta
