@@ -119,6 +119,7 @@ class Collector:
         collector_thread.start()
         
         # Wait until the visualizer window destroys
+        graph.start()
         gui_process.join()
 
         # Stop the graph and ensure the collector thread is also stopped
