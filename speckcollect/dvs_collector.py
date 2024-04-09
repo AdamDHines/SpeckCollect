@@ -26,6 +26,9 @@ import os
 import multiprocessing
 import threading
 import numpy as np
+import torch.nn as nn
+from sinabs.layers import IAFSqueeze
+from sinabs.backend.dynapcnn import DynapcnnNetwork
 
 class Collector:
     def __init__(self, data_dir, exp_name, time_int=0.033):
@@ -97,6 +100,27 @@ class Collector:
             
         gui_process = self.open_visualizer(0.75, 0.75, self.streamer_endpoint)
         dk = self.open_speck2f_dev_kit()
+                # Modify configuration to enable DVS event monitoring
+        # config = samna.speck2f.configuration.SpeckConfiguration()
+        snn = nn.Sequential(
+        # Initial average pooling as per original design
+        nn.AvgPool2d(kernel_size=(2, 2)),
+        # First convolution layer to reduce from (1, 64, 64) to (1, 32, 32)
+        nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+        IAFSqueeze(batch_size=1, min_v_mem=-1.0),
+        # Second convolution layer to reduce from (1, 32, 32) to (1, 16, 16)
+        nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+        IAFSqueeze(batch_size=1, min_v_mem=-1.0),
+        # Third convolution layer to reduce as close as possible to (1, 7, 7)
+        nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+        # IAF Squeeze layer as in the original architecture
+        IAFSqueeze(batch_size=1, min_v_mem=-1.0)
+        )
+        input_shape = (1, 128, 128)
+
+        devkit_pool = DynapcnnNetwork(snn=snn, input_shape=input_shape, dvs_input=True).make_config(device="speck2fdevkit",
+                                                                                                monitor_layers=["dvs", -1])
+        dk.get_model().apply_configuration(devkit_pool)
 
         graph = samna.graph.EventFilterGraph()
         config_source = self.build_samna_event_route(graph, dk)
@@ -104,14 +128,9 @@ class Collector:
         sink = samna.graph.sink_from(dk.get_model().get_source_node())
         # Configuring the visualizer
         visualizer_config = samna.ui.VisualizerConfiguration(
-            plots=[samna.ui.ActivityPlotConfiguration(128, 128, "DVS Layer", [0, 0, 1, 1])]
+            plots=[samna.ui.ActivityPlotConfiguration(7, 7, "DVS Layer", [0, 0, 1, 1])]
         )
         config_source.write([visualizer_config])
-
-        # Modify configuration to enable DVS event monitoring
-        config = samna.speck2f.configuration.SpeckConfiguration()
-        config.dvs_layer.monitor_enable = True
-        dk.get_model().apply_configuration(config)
 
         # Start the event collector thread
         event_dict = {}
