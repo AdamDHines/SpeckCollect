@@ -34,10 +34,10 @@ def init(args):
     collector = Collector(args.directory,args.exp,time_int=args.time_int)
     # Start the DVS collector
     collector.start_visualizer()
-    collector.save_events()
+    # collector.save_events()
     # Create frames from the events
-    framer = Frames(args.directory,args.exp)
-    framer.create_frames()
+    # framer = Frames(args.directory,args.exp)
+    # framer.create_frames()
 
 def parse_network():
 
@@ -45,7 +45,7 @@ def parse_network():
     parser = argparse.ArgumentParser(description='Args for base config file.')
 
     # Processing arguments
-    parser.add_argument('--time_int', type=int, default=0.033,
+    parser.add_argument('--time_int', type=float, default=1.0,
                     help="Time to collect spikes over for each frame")
     
     # Experimental arguments

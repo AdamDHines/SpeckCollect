@@ -26,14 +26,16 @@ import os
 import multiprocessing
 import threading
 import numpy as np
+import json
 
 class Collector:
-    def __init__(self, data_dir, exp_name, time_int=0.033):
+    def __init__(self, data_dir, exp_name, time_int=1.0):
         super().__init__()
         self.streamer_endpoint = "tcp://0.0.0.0:40000"
         self.time_int = time_int
         self.data_dir = data_dir
         self.exp_name = exp_name
+        os.makedirs(os.path.join(self.data_dir,self.exp_name), exist_ok=True)
 
     def open_speck2f_dev_kit(self):
         devices = [
@@ -84,16 +86,28 @@ class Collector:
     
     def start_visualizer(self):
         def event_collector():
+            file_counter = 0
+
             while gui_process.is_alive():
                 events = sink.get_events()  # Make sure 'self.sink' is properly initialized
                 timestamp = time.time()
                 if events:  # Check if events is not None or empty
-                    if timestamp not in self.event_dict:
-                        self.event_dict[timestamp] = events
-                    else:
-                        self.event_dict[timestamp].extend(events)
+                    # Ensure the directory exists
+                    directory = os.path.join(self.data_dir, self.exp_name)
+                    os.makedirs(directory, exist_ok=True)  # Creates the directory if it doesn't exist
+
+                    # Define the filename with an incrementing counter to ensure uniqueness
+                    filename = f'events_{file_counter}.npy'
+                    file_path = os.path.join(directory, filename)
+
+                    # Save the events to an npy file
+                    np.save(file_path, np.array(events))
+
+                    # Increment the file counter after saving to avoid overwrites in future loops
+                    file_counter += 1
+
                 time.sleep(self.time_int)
-                print(f'Processing {timestamp} with {len(events)} events')
+                print(f'Processed {timestamp} with {len(events)} events, saved to {filename}')
             
         gui_process = self.open_visualizer(0.75, 0.75, self.streamer_endpoint)
         dk = self.open_speck2f_dev_kit()
