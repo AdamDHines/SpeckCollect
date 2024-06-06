@@ -26,7 +26,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 class Frames:
-    def __init__(self, data_dir, exp_name, dims=[128, 128]):
+    def __init__(self, data_dir, exp_name, dims=[40, 40]):
         super().__init__()
         self.dims = dims
         self.data_dir = data_dir
@@ -43,6 +43,7 @@ class Frames:
         '''
         
         # Check if a hot pixels file exists
+        self.identify_hot_pixels(self.events)
         hot_pixel_file = './speckcollect/files/Speck2fDevKit_hotpixels.txt'
         if os.path.exists(hot_pixel_file):
             hot_pixels = []
@@ -76,7 +77,7 @@ class Frames:
             
 
 
-    def identify_hot_pixels(self, events, output, name, dims=[128, 128]):
+    def identify_hot_pixels(self, events, dims=[40, 40]):
         """
         Identifies hot pixels that are active at every single timestamp.
 
@@ -99,9 +100,11 @@ class Frames:
         # Convert numpy arrays to a set of tuples for easier processing and storage
         hot_pixel_set = set(zip(hot_pixels[0], hot_pixels[1]))
         
-        with open(os.path.join(output,name+".txt"), "w") as file:
+        with open('./speckcollect/files/Speck2fDevKit_hotpixels.txt', "w") as file:
             for pixel in hot_pixel_set:
                 file.write(f"{pixel[0]},{pixel[1]}\n")
+
+        return hot_pixel_set
     
 # # Define the data dir and traverse to create frames from
 # data_dir = '/home/adam/Documents/'

@@ -104,13 +104,23 @@ class Collector:
         sink = samna.graph.sink_from(dk.get_model().get_source_node())
         # Configuring the visualizer
         visualizer_config = samna.ui.VisualizerConfiguration(
-            plots=[samna.ui.ActivityPlotConfiguration(128, 128, "DVS Layer", [0, 0, 1, 1])]
+            plots=[samna.ui.ActivityPlotConfiguration(10, 10, "DVS Layer", [0, 0, 1, 1])]
         )
         config_source.write([visualizer_config])
 
         # Modify configuration to enable DVS event monitoring
         config = samna.speck2f.configuration.SpeckConfiguration()
         config.dvs_layer.monitor_enable = True
+        config.dvs_filter.enable = True
+        config.dvs_layer.origin.x = 0
+        config.dvs_layer.origin.y = 0
+        config.dvs_layer.cut.x = 40
+        config.dvs_layer.cut.y = 40
+        config.dvs_layer.pooling.x = 4
+        config.dvs_layer.pooling.y = 4
+        config.dvs_filter.hot_pixel_filter_enable = True
+        config.dvs_filter.threshold = 5
+
         dk.get_model().apply_configuration(config)
 
         # Start the event collector thread

@@ -45,7 +45,7 @@ def parse_network():
     parser = argparse.ArgumentParser(description='Args for base config file.')
 
     # Processing arguments
-    parser.add_argument('--time_int', type=int, default=0.033,
+    parser.add_argument('--time_int', type=int, default=1.0,
                     help="Time to collect spikes over for each frame")
     
     # Experimental arguments
